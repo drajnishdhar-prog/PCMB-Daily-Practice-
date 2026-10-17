@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>21-Day PCMB Discipline Calculator & Tracker</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-hover: #263449;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --phy: #38bdf8;
+      --chem: #fb923c;
+      --bio: #4ade80;
+      --math: #c084fc;
+      --accent: #f59e0b;
+      --success: #22c55e;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 16px; max-width: 960px; margin: 0 auto; line-height: 1.5; }
+
+    header { text-align: center; padding: 20px 16px; background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; }
+    header h1 { font-size: 1.6rem; margin-bottom: 6px; letter-spacing: -0.5px; }
+    header p { color: var(--muted); font-size: 0.92rem; }
+
+    /* Motivational Banner */
+    .motivation-box {
+      background: linear-gradient(90deg, rgba(245,158,11,0.15), rgba(34,197,94,0.12));
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .motivation-text { font-weight: 600; font-size: 0.98rem; color: #fde68a; }
+    .phase-pill { background: var(--accent); color: #000; font-weight: 700; padding: 4px 12px; border-radius: 999px; font-size: 0.78rem; text-transform: uppercase; }
+
+    /* Top KPI Calculator Grid */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .kpi-card { background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 14px; text-align: center; }
+    .kpi-title { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-value { font-size: 1.9rem; font-weight: 800; margin: 6px 0; }
+    .kpi-sub { font-size: 0.8rem; color: var(--muted); }
+
+    /* Subject Progress Bars */
+    .subjects-overview { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 20px; }
+    .subjects-overview h2 { font-size: 1.05rem; margin-bottom: 14px; }
+    .sub-bars { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .sub-item { background: rgba(15,23,42,0.6); padding: 12px; border-radius: 10px; border: 1px solid var(--border); }
+    .sub-header { display: flex; justify-content: space-between; font-size: 0.88rem; font-weight: 600; margin-bottom: 8px; }
+    .bar-bg { width: 100%; height: 8px; background: #0f172a; border-radius: 99px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; transition: width 0.3s ease; }
+
+    /* Active Day Logger */
+    .logger-section { display: grid; grid-template-columns: 1fr 1.15fr; gap: 18px; margin-bottom: 20px; }
+    @media (max-width: 720px) { .logger-section { grid-template-columns: 1fr; } }
+
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .panel-header h2 { font-size: 1.08rem; }
+
+    .subject-control {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px; border-radius: 10px; background: rgba(15,23,42,0.5);
+      border: 1px solid var(--border); margin-bottom: 10px;
+    }
+    .sub-label { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+    .counter-btns { display: flex; align-items: center; gap: 8px; }
+    .btn-step {
+      background: #334155; color: #fff; border: none; width: 32px; height: 32px;
+      border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 1rem;
+    }
+    .btn-step:hover { background: #475569; }
+    .btn-max {
+      background: rgba(34,197,94,0.18); color: #4ade80; border: 1px solid rgba(34,197,94,0.4);
+      padding: 6px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer;
+    }
+    .btn-max:hover { background: rgba(34,197,94,0.3); }
+    .q-count { font-weight: 800; width: 46px; text-align: center; font-size: 0.95rem; }
+
+    .complete-day-btn {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff;
+      font-weight: 700; font-size: 0.95rem; cursor: pointer; margin-top: 6px;
+    }
+    .complete-day-btn:hover { opacity: 0.92; }
+
+    /* 21-Day Chain Grid */
+    .chain-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+    .day-cell {
+      aspect-ratio: 1; border-radius: 10px; border: 2px solid var(--border);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      cursor: pointer; background: #0f172a; transition: all 0.2s ease;
+    }
+    .day-cell:hover { transform: translateY(-2px); border-color: var(--muted); }
+    .day-cell.active { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .day-cell.done { background: rgba(34,197,94,0.2); border-color: var(--success); color: #4ade80; }
+    .day-cell.partial { background: rgba(245,158,11,0.18); border-color: var(--accent); color: #fde68a; }
+    .day-num { font-size: 0.85rem; font-weight: 800; }
+    .day-score { font-size: 0.68rem; color: var(--muted); }
+    .day-cell.done .day-score { color: #86efac; }
+
+    /* Badges Section */
+    .badges-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .badge {
+      flex: 1; min-width: 120px; padding: 10px; border-radius: 10px;
+      border: 1px dashed var(--border); text-align: center; font-size: 0.78rem;
+      color: var(--muted); opacity: 0.45; transition: 0.3s;
+    }
+    .badge.unlocked {
+      opacity: 1; border-style: solid; border-color: var(--accent);
+      background: rgba(245,158,11,0.1); color: #fde68a; font-weight: 700;
+    }
+
+    /* Footer Actions */
+    .footer-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 0.82rem; color: var(--muted); }
+    .reset-btn { background: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; }
+    .reset-btn:hover { background: rgba(239,68,68,0.15); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>21-Day PCMB Discipline Builder</h1>
+    <p>10 Physics • 10 Chemistry • 10 Biology • 10 Mathematics | Daily Unbroken Chain</p>
+  </header>
+
+  <div class="motivation-box">
+    <div class="motivation-text" id="motivationQuote">"Show up for Day 1. Momentum starts with your first 10 questions."</div>
+    <span class="phase-pill" id="phaseIndicator">Phase 1: Friction</span>
+  </div>
+
+  <!-- Calculator KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-title">Unbroken Streak</div>
+      <div class="kpi-value" id="streakVal" style="color: var(--accent);">0 🔥</div>
+      <div class="kpi-sub" id="streakSub">Consecutive 40/40 Days</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Total Questions Solved</div>
+      <div class="kpi-value" id="totalQVal" style="color: var(--phy);">0 / 840</div>
+      <div class="kpi-sub" id="completionPct">0.0% Complete</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Remaining to Goal</div>
+      <div class="kpi-value" id="remainingQVal">840</div>
+      <div class="kpi-sub" id="daysCompletedSub">0 / 21 Full Days Locked</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Est. Deep Focus Time</div>
+      <div class="kpi-value" id="timeInvestedVal" style="color: var(--bio);">0.0h</div>
+      <div class="kpi-sub">Out of ~36.8 hrs total</div>
+    </div>
+  </div>
+
+  <!-- Subject Calculator Progress -->
+  <div class="subjects-overview">
+    <h2>Subject-Wise Volume Calculator (Target: 210 Qs Each)</h2>
+    <div class="sub-bars">
+      <div class="sub-item">
+        <div class="sub-header"><span>Physics</span><span id="phyTotalTxt">0 / 210</span></div>
+        <div class="bar-bg"><div class="bar-fill" id="phyBar" style="width:0%; background: var(--phy);"></div></div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-header"><span>Chemistry</span><span id="chemTotalTxt">0 / 210</span></div>
+        <div class="bar-bg"><div class="bar-fill" id="chemBar" style="width:0%; background: var(--chem);"></div></div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-header"><span>Biology</span><span id="bioTotalTxt">0 / 210</span></div>
+        <div class="bar-bg"><div class="bar-fill" id="bioBar" style="width:0%; background: var(--bio);"></div></div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-header"><span>Mathematics</span><span id="mathTotalTxt">0 / 210</span></div>
+        <div class="bar-bg"><div class="bar-fill" id="mathBar" style="width:0%; background: var(--math);"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logger & 21-Day Matrix -->
+  <div class="logger-section">
+    <!-- Left: Active Day Logger -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2 id="selectedDayTitle">Day 1 Logger</h2>
+        <span id="selectedDayScore" style="font-weight:700; color:var(--accent);">0 / 40 Qs</span>
+      </div>
+
+      <div class="subject-control">
+        <div class="sub-label"><span class="dot" style="background:var(--phy)"></span>Physics</div>
+        <div class="counter-btns">
+          <button class="btn-step" onclick="updateQ('phy', -1)">-</button>
+          <span class="q-count" id="dayPhy">0/10</span>
+          <button class="btn-step" onclick="updateQ('phy', 1)">+</button>
+          <button class="btn-max" onclick="setMax('phy')">10/10</button>
+        </div>
+      </div>
+
+      <div class="subject-control">
+        <div class="sub-label"><span class="dot" style="background:var(--chem)"></span>Chemistry</div>
+        <div class="counter-btns">
+          <button class="btn-step" onclick="updateQ('chem', -1)">-</button>
+          <span class="q-count" id="dayChem">0/10</span>
+          <button class="btn-step" onclick="updateQ('chem', 1)">+</button>
+          <button class="btn-max" onclick="setMax('chem')">10/10</button>
+        </div>
+      </div>
+
+      <div class="subject-control">
+        <div class="sub-label"><span class="dot" style="background:var(--bio)"></span>Biology</div>
+        <div class="counter-btns">
+          <button class="btn-step" onclick="updateQ('bio', -1)">-</button>
+          <span class="q-count" id="dayBio">0/10</span>
+          <button class="btn-step" onclick="updateQ('bio', 1)">+</button>
+          <button class="btn-max" onclick="setMax('bio')">10/10</button>
+        </div>
+      </div>
+
+      <div class="subject-control">
+        <div class="sub-label"><span class="dot" style="background:var(--math)"></span>Mathematics</div>
+        <div class="counter-btns">
+          <button class="btn-step" onclick="updateQ('math', -1)">-</button>
+          <span class="q-count" id="dayMath">0/10</span>
+          <button class="btn-step" onclick="updateQ('math', 1)">+</button>
+          <button class="btn-max" onclick="setMax('math')">10/10</button>
+        </div>
+      </div>
+
+      <button class="complete-day-btn" onclick="completeFullDay()">⚡ Mark All 40 Questions Done for This Day</button>
+    </div>
+
+    <!-- Right: 21-Day Chain Grid -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Don't Break The Chain (21-Day Grid)</h2>
+        <span style="font-size:0.78rem; color:var(--muted);">Tap any day to edit</span>
+      </div>
+      <div class="chain-grid" id="chainGrid"></div>
+
+      <div class="badges-bar">
+        <div class="badge" id="badge3">⚡ Day 3: Inertia Broken</div>
+        <div class="badge" id="badge7">🛡️ Day 7: 280 Qs Locked</div>
+        <div class="badge" id="badge14">🔥 Day 14: 560 Qs Wired</div>
+        <div class="badge" id="badge21">👑 Day 21: 840 Qs Master</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+    <span>Auto-saved locally on your device • Zero Discontinuation Protocol</span>
+    <button class="reset-btn" onclick="resetTracker()">Reset All Data</button>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'pcmb_21day_discipline_v1';
+    let selectedDay = 0; // 0-indexed (Day 1 = 0)
+    let data = [];
+
+    const quotes = [
+      "Discontinuation happens when you negotiate with yourself. Lock in your first 10 questions now.",
+      "40 questions today is 40 fewer gaps on exam day. Keep the chain alive!",
+      "Tired? Start with 10 Biology questions (15 mins) to build instant momentum.",
+      "Consistency beats marathon study sessions every single time. Protect your streak!",
+      "Every 40/40 day rewires your baseline discipline. Do not leave today half-finished."
+    ];
+
+    function initData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        data = JSON.parse(saved);
+      } else {
+        data = Array.from({ length: 21 }, () => ({ phy: 0, chem: 0, bio: 0, math: 0 }));
+      }
+      // Auto-select first incomplete day
+      const firstIncomplete = data.findIndex(d => (d.phy + d.chem + d.bio + d.math) < 40);
+      selectedDay = firstIncomplete !== -1 ? firstIncomplete : 20;
+      renderAll();
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function updateQ(sub, delta) {
+      const current = data[selectedDay][sub];
+      const next = Math.min(10, Math.max(0, current + delta));
+      data[selectedDay][sub] = next;
+      saveData();
+      renderAll();
+    }
+
+    function setMax(sub) {
+      data[selectedDay][sub] = 10;
+      saveData();
+      renderAll();
+    }
+
+    function completeFullDay() {
+      data[selectedDay] = { phy: 10, chem: 10, bio: 10, math: 10 };
+      saveData();
+      renderAll();
+    }
+
+    function selectDay(idx) {
+      selectedDay = idx;
+      renderAll();
+    }
+
+    function renderAll() {
+      // Calculate totals
+      let totalPhy = 0, totalChem = 0, totalBio = 0, totalMath = 0, fullDays = 0;
+      data.forEach(d => {
+        totalPhy += d.phy;
+        totalChem += d.chem;
+        totalBio += d.bio;
+        totalMath += d.math;
+        if (d.phy + d.chem + d.bio + d.math === 40) fullDays++;
+      });
+
+      const grandTotal = totalPhy + totalChem + totalBio + totalMath;
+      const pct = ((grandTotal / 840) * 100).toFixed(1);
+
+      // Calculate current consecutive streak from Day 1
+      let streak = 0;
+      for (let i = 0; i < 21; i++) {
+        const sum = data[i].phy + data[i].chem + data[i].bio + data[i].math;
+        if (sum === 40) streak++;
+        else break;
+      }
+
+      // Weighted time calculation (Math 3.5m, Phy 3m, Chem 2.5m, Bio 1.5m)
+      const totalMins = (totalMath * 3.5) + (totalPhy * 3.0) + (totalChem * 2.5) + (totalBio * 1.5);
+      const totalHours = (totalMins / 60).toFixed(1);
+
+      // Update Top KPIs
+      document.getElementById('streakVal').textContent = `${streak} 🔥`;
+      document.getElementById('totalQVal').textContent = `${grandTotal} / 840`;
+      document.getElementById('completionPct').textContent = `${pct}% Complete`;
+      document.getElementById('remainingQVal').textContent = 840 - grandTotal;
+      document.getElementById('daysCompletedSub').textContent = `${fullDays} / 21 Full Days Locked`;
+      document.getElementById('timeInvestedVal').textContent = `${totalHours}h`;
+
+      // Update Subject Progress Bars
+      document.getElementById('phyTotalTxt').textContent = `${totalPhy} / 210`;
+      document.getElementById('phyBar').style.width = `${(totalPhy / 210) * 100}%`;
+
+      document.getElementById('chemTotalTxt').textContent = `${totalChem} / 210`;
+      document.getElementById('chemBar').style.width = `${(totalChem / 210) * 100}%`;
+
+      document.getElementById('bioTotalTxt').textContent = `${totalBio} / 210`;
+      document.getElementById('bioBar').style.width = `${(totalBio / 210) * 100}%`;
+
+      document.getElementById('mathTotalTxt').textContent = `${totalMath} / 210`;
+      document.getElementById('mathBar').style.width = `${(totalMath / 210) * 100}%`;
+
+      // Update Selected Day Logger
+      const cur = data[selectedDay];
+      const curSum = cur.phy + cur.chem + cur.bio + cur.math;
+      document.getElementById('selectedDayTitle').textContent = `Day ${selectedDay + 1} Logger`;
+      document.getElementById('selectedDayScore').textContent = `${curSum} / 40 Qs`;
+      document.getElementById('dayPhy').textContent = `${cur.phy}/10`;
+      document.getElementById('dayChem').textContent = `${cur.chem}/10`;
+      document.getElementById('dayBio').textContent = `${cur.bio}/10`;
+      document.getElementById('dayMath').textContent = `${cur.math}/10`;
+
+      // Render 21-Day Grid
+      const grid = document.getElementById('chainGrid');
+      grid.innerHTML = '';
+      data.forEach((d, idx) => {
+        const sum = d.phy + d.chem + d.bio + d.math;
+        const cell = document.createElement('div');
+        cell.className = 'day-cell';
+        if (idx === selectedDay) cell.classList.add('active');
+        if (sum === 40) cell.classList.add('done');
+        else if (sum > 0) cell.classList.add('partial');
+
+        cell.innerHTML = `
+          <span class="day-num">D${idx + 1}</span>
+          <span class="day-score">${sum === 40 ? '✓ 40' : sum + '/40'}</span>
+        `;
+        cell.onclick = () => selectDay(idx);
+        grid.appendChild(cell);
+      });
+
+      // Badges
+      document.getElementById('badge3').classList.toggle('unlocked', streak >= 3);
+      document.getElementById('badge7').classList.toggle('unlocked', streak >= 7);
+      document.getElementById('badge14').classList.toggle('unlocked', streak >= 14);
+      document.getElementById('badge21').classList.toggle('unlocked', streak >= 21);
+
+      // Phase & Motivation update
+      const phaseEl = document.getElementById('phaseIndicator');
+      const quoteEl = document.getElementById('motivationQuote');
+      if (streak < 7) {
+        phaseEl.textContent = 'Phase 1: Friction (Days 1–7)';
+      } else if (streak < 14) {
+        phaseEl.textContent = 'Phase 2: Resistance (Days 8–14)';
+      } else {
+        phaseEl.textContent = 'Phase 3: Identity (Days 15–21)';
+      }
+
+      if (curSum === 40) {
+        quoteEl.textContent = `Day ${selectedDay + 1} locked at 40/40! Chain is intact—rest up and prepare for tomorrow.`;
+      } else if (curSum > 0) {
+        quoteEl.textContent = `You're ${40 - curSum} questions away from locking Day ${selectedDay + 1}. Finish strong!`;
+      } else {
+        quoteEl.textContent = quotes[selectedDay % quotes.length];
+      }
+    }
+
+    function resetTracker() {
+      if (confirm('Are you sure you want to reset all 21 days of progress?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        initData();
+      }
+    }
+
+    initData();
+  </script>
+</body>
+</html>
